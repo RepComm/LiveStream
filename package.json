@@ -1,0 +1,22 @@
+{
+  "name": "nodestream",
+  "version": "1.0.0",
+  "description": "Node & Browser based live streaming!",
+  "main": "server.js",
+  "scripts": {
+    "test": "testCommand"
+  },
+  "keywords": [
+    "node",
+    "audio",
+    "video",
+    "stream",
+    "browser"
+  ],
+  "author": "Jonathan Crowder",
+  "license": "Unlicense",
+  "dependencies": {
+    "public-ip": "^2.4.0",
+    "ws": "^4.0.0"
+  }
+}
