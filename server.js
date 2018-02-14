@@ -19,6 +19,7 @@ console.log("Stream secret key is", streamerSecretKey);
 
 let httpServer;
 let webSocketServer;
+let audioSampleRate; //Sent from streamer client to us
 
 //10/20/98 is my birthday, and 102098 is too big, so arbitrary enough...
 const httpHostingPort = 10209;
@@ -76,26 +77,49 @@ function setAsBroadcaster (socket) {
         data:preMsg + "You " + msg
     } ) );
 
-    console.log(preMsg, "Client", socket, msg);
+    console.log("Client <client> ", msg);
+}
+
+function broadcastToListeners (rawData) {
+    webSocketServer.clients.forEach(function each(client) {
+        if (client.readyState === WebSocket.OPEN && client !== streamerClient) {
+            client.send(rawData);
+        }
+    });
 }
 
 function onWebSocketServerReceived (msg, socket) {
-    let json = JSON.parse(msg);
-    if (json.type) {
-        switch (json.type) {
-            case "init":
-                if (json.data) {
-                    if (json.data === streamerSecretKey) {
-                        setAsBroadcaster(socket);
-                    } else {
-                        socket.send( JSON.stringify ( {
-                            type:"rejectedkey",
-                            data:"Your authentication key was rejected as it did not match. Closing your connection now."
-                        } ) );
-                        socket.close();
+    if (msg[0] === "{") {
+        let json = JSON.parse(msg);
+        if (json.type) {
+            switch (json.type) {
+                case "init":
+                    if (json.data) {
+                        if (json.data === streamerSecretKey) {
+                            setAsBroadcaster(socket);
+                        } else {
+                            socket.send( JSON.stringify ( {
+                                type:"rejectedkey",
+                                data:"Your authentication key was rejected as it did not match. Closing your connection now."
+                            } ) );
+                            socket.close();
+                        }
                     }
-                }
-                break;
+                    break;
+                case "samplerate":
+                    audioSampleRate = json.data;
+                    break;
+            }
+        }
+    } else {
+        if (streamerClient === socket) {
+            broadcastToListeners(msg);
+        } else {
+            socket.send( JSON.stringify ( {
+                type:"log",
+                data:"Rejected audio from your client because it's not registered as the broadcaster. Closing your connection."
+            } ) );
+            socket.close();
         }
     }
 }
@@ -147,7 +171,8 @@ function initialize () {
 
     webSocketServer.on("connection", (ws) => {
         ws.send( JSON.stringify( {
-            type:"init"
+            type:"init",
+            data:audioSampleRate //Could be undefined
         } ));
         ws.on("message", (msg) => onWebSocketServerReceived(msg, ws));
     });
