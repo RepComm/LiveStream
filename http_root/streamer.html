@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<title>NodeStream</title>
-		<link rel="stylesheet" href="index.css">
+		<link rel="stylesheet" href="streamerStyles.css">
         <style>
             .center_children {
                 text-align:center;
@@ -28,17 +28,36 @@
             button:hover {
                 background-color:rgb(32, 36, 37);
             }
+            #dDisplayLog {
+                background-color:rgb(61, 61, 61);
+                color:rgb(223, 254, 255);
+
+                width:75%;
+                height:45vh;
+
+                overflow-y:scroll;
+                margin:0 auto;
+                padding-top:1em;
+                padding-bottom:1em;
+                text-align:left;
+            }
         </style>
         
 	</head>
 	<body>
         <div class="center_children">
-            <span id="sTitle">Default Title (You probably shouldn't be seeing this)</span>
+            <span id="sTitle">NodeStream - Broadcaster</span>
             <br><br>
-            <button id="bMute">Mute</button>
+            <span id="sStatus">*Status*</span>
             <br><br>
-            <button id="bUnmute">Unmute</button>
-            <script src="client.js"></script>
+            <div id="dDisplayLog">
+                This is your streamer application log! Information will be displayed here during your session :)<br>
+            </div>
+            <br>
+
+            <button id="bToggleBroadcast">Broadcast</button>
+            <br><br>
+            <script src="streamerClient.js"></script>
         </div>
 	</body>
 </html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title>NodeStream</title>
+		<link rel="stylesheet" href="listenerStyles.css">
+        <style>
+            .center_children {
+                text-align:center;
+            }
+            #sTitle {
+                font-family:Arial, Helvetica, sans-serif;
+                font-size:1em;
+            }
+            button {
+                border:none;
+                border-radius:0.25em;
+                padding:0.5em;
+                background-color:rgb(102, 103, 105);
+                color:rgb(255, 255, 255);
+                font-family:Arial, Helvetica, sans-serif;
+                font-size:1.2em;
+                font-weight:bold;
+                width:75%;
+
+                transition: all 0.1s ease-out;
+            }
+            button:hover {
+                background-color:rgb(32, 36, 37);
+            }
+        </style>
+        
+	</head>
+	<body>
+        <div class="center_children">
+            <span id="sTitle">Default Title (You probably shouldn't be seeing this)</span>
+            <br><br>
+            <button id="bMute">Mute</button>
+            <br><br>
+            <button id="bUnmute">Unmute</button>
+            <script src="listenerClient.js"></script>
+        </div>
+	</body>
+</html>
