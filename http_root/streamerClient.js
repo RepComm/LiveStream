@@ -1,5 +1,8 @@
 
-let remoteHostSocketAddress = "str_some_address_string_abcd";
+
+let remoteHostSocketPort = "str_some_port_string_abcd";
+//let remoteHostSocketAddress = "str_some_address_string_abcd";
+let remoteHostSocketAddress = "ws://" + location.hostname + ":" + remoteHostSocketPort;
 let secretBroadcasterKey = "str_some_invalid_key_string_abcd";
 
 let audioBufferSize = 4096;

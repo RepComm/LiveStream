@@ -11,7 +11,7 @@ const WebSocket = require("ws");
 const crypto = require("crypto");
 const publicIp = require('public-ip');
 
-//Global variables
+//Keep track of the stream owner client separately
 let streamerClient;
 //A secret index that the streamer gets and uses in the browser to claim stream ownership
 let streamerSecretKey = crypto.randomBytes(16).toString('hex');
@@ -89,6 +89,7 @@ function broadcastToListeners (rawData) {
 }
 
 function onWebSocketServerReceived (msg, socket) {
+    //If the message is a JSON object string
     if (msg[0] === "{") {
         let json = JSON.parse(msg);
         if (json.type) {
@@ -107,14 +108,19 @@ function onWebSocketServerReceived (msg, socket) {
                     }
                     break;
                 case "samplerate":
-                    audioSampleRate = json.data;
+                    //if (socket === streamerClient) {
+                        audioSampleRate = json.data;
+                    //} //TODO - Else, close socket for illegal action
                     break;
             }
         }
     } else {
-        if (streamerClient === socket) {
-            broadcastToListeners(msg);
+        //If the message isn't json, it's a raw audio arraybuffer
+        if (socket === streamerClient) {
+            //If the socket is the streamer
+            broadcastToListeners(msg); //Forward the arraybuffer
         } else {
+            //If the socket is some other client, reject and disconnect them
             socket.send( JSON.stringify ( {
                 type:"log",
                 data:"Rejected audio from your client because it's not registered as the broadcaster. Closing your connection."
@@ -137,9 +143,24 @@ function initialize () {
     //Content to serve if URL is illegal or invalid
     loadContent("illegal_content_request.html");
 
+    httpContent["listenerClient.js"] = httpContent["listenerClient.js"].replace(
+        "str_some_port_string_abcd",
+        webSocketServerPort
+    );
+
+    httpContent["streamerClient.js"] = httpContent["streamerClient.js"].replace(
+        "str_some_port_string_abcd",
+        webSocketServerPort
+    ).replace(
+        "str_some_invalid_key_string_abcd",
+        streamerSecretKey
+    );
+
+    /*
     publicIp.v4().then(ip => {
         //DEBUG TODO - Debug address hardcoded!
-        let wsAddressStr = "ws://127.0.0.1:10208"; //"ws://" + ip + ":" + webSocketServerPort;
+        let wsAddressStr = "ws://" + ip + ":" + webSocketServerPort;
+        //let wsAddressStr = "ws://localhost:10208";
 
         httpContent["listenerClient.js"] = httpContent["listenerClient.js"].replace(
             "str_some_address_string_abcd",
@@ -154,7 +175,7 @@ function initialize () {
             streamerSecretKey
         );
     });
-    
+    */
     httpServer = http.createServer(httpRequestHandler);
     
     httpServer.listen (httpHostingPort, (err) => {

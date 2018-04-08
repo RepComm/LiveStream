@@ -1,42 +1,57 @@
 
-let remoteHostSocketAddress = "str_some_address_string_abcd";
-
-console.log("Attempting connection to", remoteHostSocketAddress);
-
-let audioContext = new AudioContext();
+let remoteHostSocketPort = "str_some_port_string_abcd";
+//let remoteHostSocketAddress = "str_some_address_string_abcd";
+let remoteHostSocketAddress = "ws://" + location.hostname + ":" + remoteHostSocketPort;
+let audioContext;
 let audioSampleRate;
+let ws;
+let audioSamplesBuffer = []; //List of chunks that have arrived
+let audioSamplePlaying; //Current chunk of audio data we're playing
 
-let ws = new WebSocket(
-    remoteHostSocketAddress
-);
+function onFinishedPlaying () {
+    audioSamplePlaying = audioSamplesBuffer.shift();
 
-ws.binaryType = "arraybuffer";
+}
 
-ws.onopen = (evt) => {
-    console.log("Connected to server", remoteHostSocketAddress);
-};
+function initialize () {
+    console.log("Starting audio engine");
+    audioContext = new AudioContext();
 
-ws.onmessage = (evt) => {
-    if (evt.data[0] === "{") {
-        let json = JSON.parse(evt.data);
-        if (json.type === "init") {
-            if (json.data) {
-                audioSampleRate = json.data;
-                console.log("Audio Sample Rate from streamer is", audioSampleRate);
-            } else {
-                console.log("Audio sample rate was not specified..");
-                audioSampleRate = audioContext.samplerate;
+    console.log("Attempting connection to", remoteHostSocketAddress);
+    let ws = new WebSocket(
+        remoteHostSocketAddress
+    );
+
+    ws.binaryType = "arraybuffer";
+
+    ws.onopen = (evt) => {
+        console.log("Connected to server", remoteHostSocketAddress);
+    };
+    
+    ws.onmessage = (evt) => {
+        if (evt.data[0] === "{") {
+            let json = JSON.parse(evt.data);
+            if (json.type === "init") {
+                if (json.data) {
+                    audioSampleRate = json.data;
+                    console.log("Audio Sample Rate from streamer is", audioSampleRate);
+                } else {
+                    audioSampleRate = audioContext.samplerate;
+                    console.log("Audio sample rate was not specified.. Using default", audioSampleRate);
+                }
             }
+        } else {
+            audioSamplePlaying = new Float32Array(evt.data);
+            let buffer = audioContext.createBuffer(1, 4096, audioSampleRate);
+            
+            buffer.copyToChannel(audioSamplePlaying, 0);
+    
+            var node = audioContext.createBufferSource(0);
+            node.buffer = buffer;
+            node.connect(audioContext.destination);
+            node.start();
         }
-    } else {
-        let audioSamples = new Float32Array(evt.data);
-        var buffer = audioContext.createBuffer(1, 4096, audioSampleRate);
-        
-        buffer.copyToChannel(audioSamples, 0);
+    };    
+}
 
-        var node = audioContext.createBufferSource(0);
-        node.buffer = buffer;
-        node.connect(audioContext.destination);
-        node.start();
-    }
-};
+initialize();

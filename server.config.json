@@ -1,0 +1,5 @@
+{
+    "max_clients":"Unlimited",
+    "prefered_clients":50,
+    "usePublicIP":true,
+}
