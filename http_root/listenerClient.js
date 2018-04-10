@@ -42,7 +42,7 @@ function initialize () {
                     audioSampleRate = audioContext.samplerate;
                     console.log("Audio sample rate was not specified.. Using default", audioSampleRate);
                 }
-                currentAudioBuffer = audioContext.createBuffer(1, 4096, audioSampleRate);
+                currentAudioBuffer = audioContext.createBuffer(1, 4096*4, audioSampleRate);
                 audioSourceNode = audioContext.createBufferSource(0);
                 audioSourceNode.loop = true;
                 audioSourceNode.connect(audioContext.destination);

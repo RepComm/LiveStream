@@ -5,7 +5,7 @@ let remoteHostSocketPort = "str_some_port_string_abcd";
 let remoteHostSocketAddress = "ws://" + location.hostname + ":" + remoteHostSocketPort;
 let secretBroadcasterKey = "str_some_invalid_key_string_abcd";
 
-let audioBufferSize = 4096;
+let audioBufferSize = 4096*4;
 let audioSampleRate;
 let audioInputChannels = 1;
 let audioOutputChannels = 1;
