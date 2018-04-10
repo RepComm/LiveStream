@@ -7,6 +7,9 @@ let audioSampleRate;
 let ws;
 let audioSamplesBuffer = []; //List of chunks that have arrived
 let audioSamplePlaying; //Current chunk of audio data we're playing
+let currentAudioBuffer;
+
+let audioSourceNode;
 
 function onFinishedPlaying () {
     audioSamplePlaying = audioSamplesBuffer.shift();
@@ -16,7 +19,7 @@ function onFinishedPlaying () {
 function initialize () {
     console.log("Starting audio engine");
     audioContext = new AudioContext();
-
+    
     console.log("Attempting connection to", remoteHostSocketAddress);
     let ws = new WebSocket(
         remoteHostSocketAddress
@@ -39,17 +42,25 @@ function initialize () {
                     audioSampleRate = audioContext.samplerate;
                     console.log("Audio sample rate was not specified.. Using default", audioSampleRate);
                 }
+                currentAudioBuffer = audioContext.createBuffer(1, 4096, audioSampleRate);
+                audioSourceNode = audioContext.createBufferSource(0);
+                audioSourceNode.loop = true;
+                audioSourceNode.connect(audioContext.destination);
+                audioSourceNode.start();
             }
         } else {
             audioSamplePlaying = new Float32Array(evt.data);
-            let buffer = audioContext.createBuffer(1, 4096, audioSampleRate);
+            //buffer = audioContext.createBuffer(1, 4096, audioSampleRate);
             
-            buffer.copyToChannel(audioSamplePlaying, 0);
+            //buffer.copyToChannel(audioSamplePlaying, 0);
+            currentAudioBuffer.copyToChannel(audioSamplePlaying, 0);
     
-            var node = audioContext.createBufferSource(0);
-            node.buffer = buffer;
+            /*var node = audioContext.createBufferSource(0);
+            node.buffer = currentAudioBuffer; //buffer;
             node.connect(audioContext.destination);
-            node.start();
+            node.start();*/
+            audioSourceNode.buffer = currentAudioBuffer;
+            //audioSourceNode.connect(audioContext.destination);
         }
     };    
 }
