@@ -39,7 +39,7 @@ function initialize () {
                     audioSampleRate = json.data;
                     console.log("Audio Sample Rate from streamer is", audioSampleRate);
                 } else {
-                    audioSampleRate = audioContext.samplerate;
+                    audioSampleRate = audioContext.sampleRate;
                     console.log("Audio sample rate was not specified.. Using default", audioSampleRate);
                 }
                 currentAudioBuffer = audioContext.createBuffer(1, 4096*4, audioSampleRate);
@@ -49,10 +49,13 @@ function initialize () {
                 audioSourceNode.start();
             }
         } else {
-            audioSamplePlaying = new Float32Array(evt.data);
+            if (!audioSamplePlaying) {
+                audioSamplePlaying = new Float32Array(evt.data);
+            } else {
+                audioSamplePlaying.set(evt.data);//= new Float32Array(evt.data);
+            }
             //buffer = audioContext.createBuffer(1, 4096, audioSampleRate);
             
-            //buffer.copyToChannel(audioSamplePlaying, 0);
             currentAudioBuffer.copyToChannel(audioSamplePlaying, 0);
     
             /*var node = audioContext.createBufferSource(0);

@@ -14,7 +14,7 @@ const publicIp = require('public-ip');
 //Keep track of the stream owner client separately
 let streamerClient;
 //A secret index that the streamer gets and uses in the browser to claim stream ownership
-let streamerSecretKey = crypto.randomBytes(16).toString('hex');
+let streamerSecretKey = crypto.randomBytes(16).toString("hex");
 console.log("Stream secret key is", streamerSecretKey);
 
 let httpServer;
